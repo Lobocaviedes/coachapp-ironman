@@ -18,13 +18,29 @@ export interface DailyContext {
   reporteCompleto: string;
 }
 
-// Path al proyecto Ironman (relativo al workspace iCloud)
+// Path al proyecto Ironman (relativo al workspace iCloud, solo en desarrollo local)
 const IRONMAN_BASE = path.resolve(
   process.cwd(),
   '../../Ironman_70_3_Project'
 );
 
+// En producción (Vercel), los reportes se sincronizan a public/data/
+const LOCAL_DATA_DIR = path.join(process.cwd(), 'public', 'data');
+
 function getLatestReporte(): string | null {
+  // Primero buscar en public/data/ (producción Vercel y dev)
+  if (fs.existsSync(LOCAL_DATA_DIR)) {
+    const files = fs
+      .readdirSync(LOCAL_DATA_DIR)
+      .filter((f) => f.startsWith('reporte_') && f.endsWith('.txt'))
+      .sort()
+      .reverse();
+    if (files.length > 0) {
+      return fs.readFileSync(path.join(LOCAL_DATA_DIR, files[0]), 'utf-8');
+    }
+  }
+
+  // Fallback: leer directamente del proyecto Ironman (solo desarrollo local)
   const reportesDir = path.join(IRONMAN_BASE, 'reportes');
   if (!fs.existsSync(reportesDir)) return null;
 
