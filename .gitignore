@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Apple Watch raw data — nunca subir (privado y muy pesado)
+ironman/analisis/*_output.ipynb
+ironman/unify_repo.py
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
