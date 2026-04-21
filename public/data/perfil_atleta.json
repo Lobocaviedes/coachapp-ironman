@@ -1,0 +1,93 @@
+{
+  "_descripcion": "Perfil estático del atleta — datos que no cambian diariamente. Se actualiza manualmente cada 4-8 semanas o después de eventos relevantes. Simón lo lee en el notebook y Carlos lo recibe en su system prompt.",
+  "_ultima_actualizacion": "2026-04-21",
+  "_actualizado_por": "Lobsang (manual)",
+
+  "atleta": {
+    "nombre": "Lobsang",
+    "edad": 42,
+    "altura_cm": null,
+    "objetivo_principal": "Completar Ironman 70.3",
+    "proxima_carrera": "Triatlón Sprint Mayo 2026",
+    "nivel": "Amateur competitivo"
+  },
+
+  "composicion_corporal": [
+    {
+      "fecha": "2026-04-21",
+      "peso_kg": null,
+      "grasa_corporal_pct": null,
+      "masa_muscular_kg": null,
+      "nota": "Completar con datos reales"
+    }
+  ],
+
+  "historial_lesiones": [
+    {
+      "fecha_inicio": null,
+      "fecha_fin": null,
+      "zona": null,
+      "descripcion": null,
+      "impacto_entrenamiento": null,
+      "nota": "Completar con lesiones previas relevantes"
+    }
+  ],
+
+  "marcas_personales": {
+    "natacion": {
+      "100m_pool_min_seg": null,
+      "SWOLF_promedio": null,
+      "nota": "Completar con mejor tiempo en 100m piscina"
+    },
+    "ciclismo": {
+      "FTP_watts": null,
+      "cadencia_optima_rpm": null,
+      "velocidad_crucero_kmh": null,
+      "nota": "FTP requiere test de 20 min. Si no tienes potenciómetro, dejar null."
+    },
+    "running": {
+      "pace_Z2_min_km": null,
+      "pace_threshold_min_km": null,
+      "cadencia_optima_spm": null,
+      "nota": "Completar con pace de zona 2 y umbral (test de 30 min)"
+    },
+    "fuerza": {
+      "sentadilla_1RM_kg": null,
+      "peso_muerto_1RM_kg": null,
+      "press_banca_1RM_kg": null,
+      "dominadas_max": null,
+      "nota": "Completar con datos de Snap Fitness"
+    }
+  },
+
+  "registro_fuerza": [
+    {
+      "_instrucciones": "Agrega una entrada por sesión de Snap Fitness. Foto del workout o descripción manual.",
+      "fecha": "2026-04-21",
+      "gimnasio": "Snap Fitness",
+      "duracion_min": null,
+      "ejercicios": [
+        {
+          "nombre": null,
+          "series": null,
+          "repeticiones": null,
+          "peso_kg": null,
+          "notas": null
+        }
+      ],
+      "percepcion_esfuerzo_RPE": null,
+      "notas_sesion": "Completar con datos reales"
+    }
+  ],
+
+  "zonas_frecuencia_cardiaca": {
+    "_metodo": "Karvonen o Garmin — ajustar con FCmax real",
+    "FCmax": null,
+    "FC_reposo": 64,
+    "Z1_recuperacion": null,
+    "Z2_base_aerobica": null,
+    "Z3_tempo": null,
+    "Z4_umbral": null,
+    "Z5_vo2max": null
+  }
+}
