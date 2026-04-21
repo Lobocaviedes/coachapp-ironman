@@ -1,93 +1,226 @@
 {
-  "_descripcion": "Perfil estático del atleta — datos que no cambian diariamente. Se actualiza manualmente cada 4-8 semanas o después de eventos relevantes. Simón lo lee en el notebook y Carlos lo recibe en su system prompt.",
+  "_descripcion": "Perfil del atleta — datos manuales que complementan los datos automáticos de Apple Watch. Actualizar cada 4-8 semanas o después de eventos relevantes.",
   "_ultima_actualizacion": "2026-04-21",
   "_actualizado_por": "Lobsang (manual)",
+  "_fuentes": {
+    "composicion_corporal": "medición manual",
+    "lesiones": "Resumen_Entrenamiento_Lobsang_V1.md",
+    "marcas_running": "calculado desde workouts Apple Watch — pace promedio en sesiones Z2 (avgHR 132-143 BPM)",
+    "marcas_ciclismo": "calculado desde workouts Apple Watch — sin potenciómetro, NO hay watts disponibles",
+    "marcas_natacion": "SWOLF estimado desde totalSwimmingStrokeCount + duración + lapLength=25m. swimDistance no disponible en Apple Watch, distancia estimada del log de entrenamiento",
+    "fuerza": "Registro_Sesiones_Fuerza_Lobsang.md — Snap Fitness no sincroniza con Apple Health"
+  },
 
   "atleta": {
     "nombre": "Lobsang",
     "edad": 42,
     "altura_cm": null,
+    "peso_kg": 67,
     "objetivo_principal": "Completar Ironman 70.3",
     "proxima_carrera": "Triatlón Sprint Mayo 2026",
-    "nivel": "Amateur competitivo"
+    "nivel": "Amateur competitivo — primer año en triatlón",
+    "bicicleta": "Azzurri (carbono, ruta)"
   },
 
   "composicion_corporal": [
     {
       "fecha": "2026-04-21",
-      "peso_kg": null,
+      "peso_kg": 67,
       "grasa_corporal_pct": null,
       "masa_muscular_kg": null,
-      "nota": "Completar con datos reales"
+      "nota": "Peso confirmado por Lobsang. % grasa y masa muscular pendientes (requieren bioimpedancia o DEXA)."
     }
   ],
 
   "historial_lesiones": [
     {
-      "fecha_inicio": null,
+      "fecha_inicio": "2026-03-29",
       "fecha_fin": null,
-      "zona": null,
-      "descripcion": null,
-      "impacto_entrenamiento": null,
-      "nota": "Completar con lesiones previas relevantes"
+      "zona": "Isquiotibial izquierdo",
+      "descripcion": "Lesión aguda durante brick (bici + run). Dolor agudo al forzar el ritmo (6:04 min/km). Recaída el 11 de abril tras correr a ritmo agresivo.",
+      "estado_actual": "Estable desde 12-Abr-2026 (reposo forzado por gripa ayudó a la sanación)",
+      "impacto_entrenamiento": [
+        "Techo de impacto: dolor aparece después de 45-50 min de carrera continua",
+        "Método CACO obligatorio — no correr continuo más de ese umbral",
+        "Prohibido: estiramientos estáticos en fase aguda, extensiones de pierna con carga",
+        "Obligatorio: pull-buoy en natación para evitar que la patada de crol tensione el isquio",
+        "Protocolo de rescate: hielo 15 min + banda compresora post-sesión",
+        "Fortalecimiento: solo ejercicios isométricos (puente de glúteo hold 45s)"
+      ],
+      "nivel_dolor_actual": "0/10"
     }
   ],
 
   "marcas_personales": {
     "natacion": {
-      "100m_pool_min_seg": null,
-      "SWOLF_promedio": null,
-      "nota": "Completar con mejor tiempo en 100m piscina"
+      "_nota_metodologia": "SWOLF = (segundos por largo) + (brazadas por largo). Largo=25m. Distancia estimada del log de entrenamiento (Apple Watch no registra swimDistance correctamente).",
+      "SWOLF_promedio_reciente": 63,
+      "SWOLF_sesion_20abr": 62,
+      "SWOLF_sesion_17abr": 65,
+      "cadencia_brazadas_promedio_spm": 13,
+      "distancia_continua_max_m": 300,
+      "objetivo_distancia_continua_m": 750,
+      "100m_pool_seg": null,
+      "nota": "Hito 17-Abr: 150m continuos. Hito 20-Abr: 300m continuos (récord). SWOLF calculado por Copilot desde Apple Watch data. Pendiente validación por Héctor (coach natación)."
     },
     "ciclismo": {
+      "_nota_potencia": "Apple Watch NO registra potencia (watts). Se requiere potenciómetro externo (Garmin Vector, Stages, etc.) para FTP real.",
       "FTP_watts": null,
-      "cadencia_optima_rpm": null,
-      "velocidad_crucero_kmh": null,
-      "nota": "FTP requiere test de 20 min. Si no tienes potenciómetro, dejar null."
+      "velocidad_Z2_kmh": 15.5,
+      "velocidad_mejor_reciente_kmh": 21.1,
+      "velocidad_promedio_azzurri_kmh": 19.9,
+      "cadencia_rpm": null,
+      "nota": "MTB promedio anterior: ~16-17 km/h. Azzurri (20-Abr): 21.1 km/h (récord). 21-Abr: 24.6km a 19.9 km/h promedio, avgHR=144. FTP requiere test de 20 min con potenciómetro."
     },
     "running": {
-      "pace_Z2_min_km": null,
-      "pace_threshold_min_km": null,
-      "cadencia_optima_spm": null,
-      "nota": "Completar con pace de zona 2 y umbral (test de 30 min)"
+      "_nota_metodologia": "pace_Z2 calculado desde sesiones con avgHR 132-143 BPM (Zona 2 definida en plan de entrenamiento). Apple Watch registra speed en km/h.",
+      "pace_Z2_min_km": "8:20",
+      "pace_Z2_rango_min_km": "8:00 - 8:39",
+      "pace_threshold_min_km": "6:15",
+      "cadencia_promedio_spm": null,
+      "distancia_CACO_max_km": 8.87,
+      "nota": "Z2 pace: Apr-10 (8:06/km, avgHR=140), Apr-18 (8:39/km, avgHR=135). Threshold: Mar-11 (6:17/km, avgHR=149). Cadencia running no disponible en Apple Watch Watch (requiere sensor de zancada). Distancia máxima: 8.87km CACO el 18-Abr."
     },
     "fuerza": {
+      "dominadas_max_reps": 12,
+      "dominadas_series_confirmadas": "4x12",
       "sentadilla_1RM_kg": null,
       "peso_muerto_1RM_kg": null,
       "press_banca_1RM_kg": null,
-      "dominadas_max": null,
-      "nota": "Completar con datos de Snap Fitness"
+      "nota": "Snap Fitness no sincroniza con Apple Health. Datos manuales de Registro_Sesiones_Fuerza_Lobsang.md. Pesos por ejercicio no registrados — agregar en próxima sesión."
     }
   },
 
   "registro_fuerza": [
     {
-      "_instrucciones": "Agrega una entrada por sesión de Snap Fitness. Foto del workout o descripción manual.",
-      "fecha": "2026-04-21",
+      "fecha": "2026-04-18",
       "gimnasio": "Snap Fitness",
+      "contexto": "Post CACO 8.87km — sesión de alta energía",
+      "objetivo": "Potencia Tren Superior + Estabilidad de Core",
       "duracion_min": null,
+      "percepcion_esfuerzo_RPE": null,
       "ejercicios": [
         {
-          "nombre": null,
-          "series": null,
-          "repeticiones": null,
+          "nombre": "Dominadas (Chin-ups / Pull-ups)",
+          "series": 4,
+          "repeticiones": 12,
+          "peso_kg": "peso corporal",
+          "proposito": "Fuerza de tracción — fase de agarre y tirón en natación"
+        },
+        {
+          "nombre": "Press de Pecho (Plate Loaded Chest Press)",
+          "series": 4,
+          "repeticiones": 12,
           "peso_kg": null,
-          "notas": null
+          "proposito": "Pectorales y tríceps — estabilidad en acoples de bicicleta"
+        },
+        {
+          "nombre": "Remo con Mancuerna (Bent Over Row)",
+          "series": 4,
+          "repeticiones": 12,
+          "peso_kg": null,
+          "proposito": "Estabilidad escapular — soporte posición aerodinámica"
+        },
+        {
+          "nombre": "Press Militar (Shoulder Press)",
+          "series": 4,
+          "repeticiones": 12,
+          "peso_kg": null,
+          "proposito": "Resistencia deltoides — evitar fatiga en rutas largas de ciclismo"
         }
       ],
+      "notas_sesion": "Sesión realizada post-fatiga de resistencia (simula fatiga de triatlón). Sin ejercicios de cadena abierta pesados para proteger isquiotibial."
+    },
+    {
+      "fecha": "2026-04-21",
+      "gimnasio": "Snap Fitness",
+      "contexto": "Post ciclismo 24.6km en la Azzurri",
+      "objetivo": "Compensación postural + Blindaje isquiotibial",
+      "duracion_min": null,
       "percepcion_esfuerzo_RPE": null,
-      "notas_sesion": "Completar con datos reales"
+      "ejercicios": [
+        {
+          "nombre": "Jalón al Pecho (Lat Pulldown)",
+          "series": 4,
+          "repeticiones": 10,
+          "peso_kg": null,
+          "proposito": "Dorsales — conexión mente-músculo, descenso controlado",
+          "nota_tecnica": "Controlar el descenso para maximizar activación de dorsales"
+        },
+        {
+          "nombre": "Remo en Polea Baja",
+          "series": 3,
+          "repeticiones": 12,
+          "peso_kg": null,
+          "proposito": "Postura — contrarrestar posición encorvada de bici (alivio de hombros)",
+          "nota_tecnica": "Mantener pecho erguido"
+        },
+        {
+          "nombre": "Flexiones de Pecho (Push-ups) o Press de Banca",
+          "series": 3,
+          "repeticiones": 12,
+          "peso_kg": null,
+          "proposito": "Fuerza de empuje general"
+        },
+        {
+          "nombre": "Core: Deadbug & Bird-Dog",
+          "series": 3,
+          "repeticiones": "15 por lado",
+          "peso_kg": "sin peso",
+          "proposito": "Estabilización lumbar profunda sin estresar el isquiotibial"
+        },
+        {
+          "nombre": "Puente de Glúteo Isométrico (Hold)",
+          "series": 3,
+          "repeticiones": "45 segundos hold",
+          "peso_kg": "sin peso",
+          "proposito": "Blindaje isquiotibial — fortalecer unión miotendinosa de forma segura"
+        }
+      ],
+      "notas_sesion": "Tensión en hombros post-ciclismo. Foco en cadena posterior para corregir cifosis funcional. Isquiotibial sin molestias durante la sesión."
     }
   ],
 
   "zonas_frecuencia_cardiaca": {
-    "_metodo": "Karvonen o Garmin — ajustar con FCmax real",
-    "FCmax": null,
+    "_metodo": "Karvonen — basado en FCmax observada en workouts Apple Watch (181 BPM, Mar-24 running)",
+    "_nota": "Zona 2 verificada empíricamente: 132-143 BPM según plan de entrenamiento y correlación con workouts reales",
+    "FCmax": 181,
     "FC_reposo": 64,
-    "Z1_recuperacion": null,
-    "Z2_base_aerobica": null,
-    "Z3_tempo": null,
-    "Z4_umbral": null,
-    "Z5_vo2max": null
+    "FC_reserva": 117,
+    "Z1_recuperacion": "< 123 BPM (< 50% FCR)",
+    "Z2_base_aerobica": "123 - 146 BPM (50-70% FCR) — empiricamente confirmado: 132-143 BPM en sesiones Z2",
+    "Z3_tempo": "146 - 158 BPM (70-80% FCR)",
+    "Z4_umbral": "158 - 169 BPM (80-90% FCR)",
+    "Z5_vo2max": "> 169 BPM (> 90% FCR)"
+  },
+
+  "metricas_disponibles_apple_watch": {
+    "_descripcion": "Referencia de qué métricas captura automáticamente el Apple Watch vs qué requiere ingreso manual",
+    "automatico": [
+      "avgHeartRate, maxHeartRate, heartRateData (frecuencia cardíaca continua)",
+      "heartRateRecovery (recuperación cardíaca post-esfuerzo)",
+      "activeEnergy / activeEnergyBurned (calorías activas)",
+      "duration (duración del workout)",
+      "distance / cyclingDistance / swimDistance (distancia)",
+      "speed (velocidad promedio en km/h) — running y ciclismo",
+      "route (GPS lat/lon) — para workouts outdoor",
+      "elevation (elevación) — running y ciclismo outdoor",
+      "totalSwimmingStrokeCount (total de brazadas) — Pool Swim",
+      "swimCadence (cadencia de brazadas en count/min) — Pool Swim",
+      "swimStroke (brazadas por minuto, serie temporal) — Pool Swim",
+      "lapLength (largo de piscina en metros) — Pool Swim",
+      "stepCadence (cadencia de zancada en spm) — Running (no siempre disponible)",
+      "VO2max (estimado por Apple — disponible en métricas de salud)",
+      "HRV (Heart Rate Variability) — en métricas de salud",
+      "restingHeartRate (FC reposo) — en métricas de salud",
+      "sleepAnalysis (análisis de sueño) — en métricas de salud"
+    ],
+    "NO_disponible_requiere_dispositivo_externo": [
+      "Potencia en watts (cycling/running) — requiere potenciómetro (Garmin Vector, Stages, Stryd)",
+      "Cadencia de pedaleo RPM — requiere sensor de cadencia en bici",
+      "Datos de Snap Fitness — no sincroniza con Apple Health",
+      "Composición corporal (% grasa, masa muscular) — requiere báscula inteligente (Withings) o DEXA"
+    ],
+    "SWOLF_nota": "SWOLF NO es una métrica directa de Apple Watch. Se calcula: SWOLF = (duración_total_seg / n_largos) + (total_brazadas / n_largos). Apple Watch no reporta swimDistance correctamente — usar distancia del log manual."
   }
 }

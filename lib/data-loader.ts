@@ -16,16 +16,56 @@ export interface DailyContext {
 }
 
 export interface AtletaPerfil {
-  composicion_corporal: { fecha: string; peso_kg: number | null; grasa_corporal_pct: number | null; masa_muscular_kg: number | null }[];
-  historial_lesiones: { fecha_inicio: string | null; zona: string | null; descripcion: string | null; impacto_entrenamiento: string | null }[];
+  atleta: { nombre: string; edad: number; peso_kg: number | null; objetivo_principal: string; proxima_carrera: string; bicicleta?: string };
+  composicion_corporal: { fecha: string; peso_kg: number | null; grasa_corporal_pct: number | null; masa_muscular_kg: number | null; nota?: string }[];
+  historial_lesiones: {
+    fecha_inicio: string | null;
+    zona: string | null;
+    descripcion: string | null;
+    estado_actual?: string | null;
+    impacto_entrenamiento: string[] | string | null;
+    nivel_dolor_actual?: string;
+  }[];
   marcas_personales: {
-    natacion: { SWOLF_promedio: number | null };
-    ciclismo: { FTP_watts: number | null; cadencia_optima_rpm: number | null };
-    running: { pace_Z2_min_km: number | null; cadencia_optima_spm: number | null };
-    fuerza: { sentadilla_1RM_kg: number | null; dominadas_max: number | null };
+    natacion: {
+      SWOLF_promedio_reciente?: number | null;
+      SWOLF_promedio?: number | null;
+      cadencia_brazadas_promedio_spm?: number | null;
+      distancia_continua_max_m?: number | null;
+      nota?: string;
+    };
+    ciclismo: {
+      FTP_watts: number | null;
+      velocidad_Z2_kmh?: number | null;
+      velocidad_mejor_reciente_kmh?: number | null;
+      cadencia_optima_rpm?: number | null;
+      nota?: string;
+    };
+    running: {
+      pace_Z2_min_km: string | number | null;
+      pace_Z2_rango_min_km?: string | null;
+      pace_threshold_min_km?: string | null;
+      cadencia_optima_spm?: number | null;
+      distancia_CACO_max_km?: number | null;
+      nota?: string;
+    };
+    fuerza: {
+      dominadas_max_reps?: number | null;
+      dominadas_max?: number | null;
+      sentadilla_1RM_kg?: number | null;
+      nota?: string;
+    };
   };
-  registro_fuerza: { fecha: string; gimnasio: string; duracion_min: number | null; ejercicios: { nombre: string | null; series: number | null; repeticiones: string | null; peso_kg: number | null }[]; notas_sesion: string | null }[];
-  zonas_fc: { FCmax: number | null; FC_reposo: number };
+  registro_fuerza: {
+    fecha: string;
+    gimnasio: string;
+    contexto?: string;
+    objetivo?: string;
+    duracion_min: number | null;
+    ejercicios: { nombre: string | null; series: number | null; repeticiones: string | number | null; peso_kg: string | number | null; proposito?: string }[];
+    notas_sesion: string | null;
+  }[];
+  zonas_frecuencia_cardiaca: { FCmax: number | null; FC_reposo: number; Z2_base_aerobica?: string };
 }
 
 const IRONMAN_BASE = path.resolve(process.cwd(), '../../Ironman_70_3_Project');
@@ -53,11 +93,12 @@ function loadPerfilAtleta(): AtletaPerfil | null {
   try {
     const raw = JSON.parse(fs.readFileSync(perfilPath, 'utf-8'));
     return {
+      atleta: raw.atleta || {},
       composicion_corporal: raw.composicion_corporal || [],
       historial_lesiones: raw.historial_lesiones || [],
       marcas_personales: raw.marcas_personales || {},
       registro_fuerza: raw.registro_fuerza || [],
-      zonas_fc: raw.zonas_frecuencia_cardiaca || {},
+      zonas_frecuencia_cardiaca: raw.zonas_frecuencia_cardiaca || {},
     };
   } catch { return null; }
 }
@@ -111,30 +152,60 @@ export function loadDailyContext(): DailyContext {
 
 function formatComposicion(p: AtletaPerfil): string {
   const last = p.composicion_corporal.filter(c => c.peso_kg).slice(-1)[0];
-  if (!last) return 'Sin datos registrados — ingresar en perfil_atleta.json.';
-  return `Peso: ${last.peso_kg} kg | Grasa: ${last.grasa_corporal_pct ?? '?'}% | Músculo: ${last.masa_muscular_kg ?? '?'} kg (medido: ${last.fecha})`;
+  const peso = p.atleta?.peso_kg;
+  if (!last && !peso) return 'Sin datos registrados.';
+  const pesoFinal = last?.peso_kg ?? peso;
+  const grasa = last?.grasa_corporal_pct ?? null;
+  const musculo = last?.masa_muscular_kg ?? null;
+  const fecha = last?.fecha ?? 'sin fecha';
+  return `Peso: ${pesoFinal} kg | Grasa: ${grasa ?? 'sin dato'}% | Músculo: ${musculo ?? 'sin dato'} kg (registrado: ${fecha})`;
 }
 
 function formatLesiones(p: AtletaPerfil): string {
   const activas = p.historial_lesiones.filter(l => l.zona);
   if (!activas.length) return 'Sin lesiones registradas.';
-  return activas.map(l => `• ${l.zona}: ${l.descripcion} — ${l.impacto_entrenamiento}`).join('\n');
+  return activas.map(l => {
+    const impacto = Array.isArray(l.impacto_entrenamiento)
+      ? l.impacto_entrenamiento.join(' | ')
+      : (l.impacto_entrenamiento ?? '');
+    const estado = l.estado_actual ? ` [${l.estado_actual}]` : '';
+    const dolor = l.nivel_dolor_actual ? ` — Dolor actual: ${l.nivel_dolor_actual}` : '';
+    return `• ${l.zona} (desde ${l.fecha_inicio ?? '?'})${estado}${dolor}\n  ${l.descripcion}\n  ⚠️ Restricciones: ${impacto}`;
+  }).join('\n\n');
 }
 
 function formatMarcas(p: AtletaPerfil): string {
   const m = p.marcas_personales;
+  const swolf = m?.natacion?.SWOLF_promedio_reciente ?? m?.natacion?.SWOLF_promedio;
+  const swolfStr = swolf ? `SWOLF ~${swolf} (calc: seg/largo + brazadas/largo)` : 'pendiente (Simón calcula en notebook v2)';
+  const cadNat = m?.natacion?.cadencia_brazadas_promedio_spm ?? '~13';
+  const distCont = m?.natacion?.distancia_continua_max_m ?? '?';
+  const ftpStr = m?.ciclismo?.FTP_watts ? `${m.ciclismo.FTP_watts}W` : 'sin dato (Apple Watch no mide watts — requiere potenciómetro)';
+  const velZ2 = m?.ciclismo?.velocidad_Z2_kmh ? `${m.ciclismo.velocidad_Z2_kmh} km/h` : '?';
+  const velMejor = m?.ciclismo?.velocidad_mejor_reciente_kmh ? `${m.ciclismo.velocidad_mejor_reciente_kmh} km/h` : '?';
+  const paceZ2 = m?.running?.pace_Z2_min_km ?? '?';
+  const paceRango = m?.running?.pace_Z2_rango_min_km ?? '?';
+  const paceTh = m?.running?.pace_threshold_min_km ?? '?';
+  const distCACO = m?.running?.distancia_CACO_max_km ?? '?';
+  const dominadas = m?.fuerza?.dominadas_max_reps ?? m?.fuerza?.dominadas_max ?? '?';
   return [
-    `🏊 Natación — SWOLF promedio: ${m?.natacion?.SWOLF_promedio ?? 'pendiente (Apple Watch ya lo captura — próxima versión notebook)'}`,
-    `🚴 Ciclismo — FTP: ${m?.ciclismo?.FTP_watts ?? 'pendiente (requiere potenciómetro o test de 20min)'} W | Cadencia óptima: ${m?.ciclismo?.cadencia_optima_rpm ?? 'pendiente'} rpm`,
-    `🏃 Running — Pace Z2: ${m?.running?.pace_Z2_min_km ?? 'pendiente'} min/km | Cadencia: ${m?.running?.cadencia_optima_spm ?? 'pendiente'} spm`,
-    `💪 Fuerza — Sentadilla 1RM: ${m?.fuerza?.sentadilla_1RM_kg ?? 'pendiente'} kg | Dominadas: ${m?.fuerza?.dominadas_max ?? 'pendiente'}`,
+    `🏊 NATACIÓN — ${swolfStr} | Cadencia: ${cadNat} braz/min | Distancia continua máx: ${distCont} m`,
+    `� CICLISMO — FTP: ${ftpStr} | Vel Z2: ${velZ2} | Mejor Azzurri: ${velMejor}`,
+    `🏃 RUNNING — Pace Z2: ${paceZ2} min/km (rango: ${paceRango}) | Umbral: ${paceTh} min/km | Distancia CACO máx: ${distCACO} km`,
+    `💪 FUERZA — Dominadas: ${dominadas} reps | Sentadilla 1RM: ${m?.fuerza?.sentadilla_1RM_kg ?? 'sin dato'} kg`,
   ].join('\n');
 }
 
 function formatFuerza(p: AtletaPerfil): string {
-  const ultimas = p.registro_fuerza.filter(s => s.duracion_min).slice(-3);
-  if (!ultimas.length) return 'Sin sesiones registradas. Snap Fitness no sincroniza con Apple Health — ingresar manualmente en perfil_atleta.json.';
-  return ultimas.map(s => `• ${s.fecha} [${s.gimnasio}] ${s.duracion_min}min — ${s.notas_sesion || 'sin notas'}`).join('\n');
+  const sesiones = p.registro_fuerza.filter(s => s.fecha).slice(-3);
+  if (!sesiones.length) return 'Sin sesiones registradas. Snap Fitness no sincroniza con Apple Health — ingreso manual requerido.';
+  return sesiones.map(s => {
+    const ejerciciosList = s.ejercicios
+      .filter(e => e.nombre)
+      .map(e => `    - ${e.nombre}: ${e.series}x${e.repeticiones} [${e.peso_kg ?? 'sin peso'}]`)
+      .join('\n');
+    return `• ${s.fecha} [${s.gimnasio}] — ${s.objetivo ?? ''}\n  Contexto: ${s.contexto ?? ''}\n${ejerciciosList}\n  Nota: ${s.notas_sesion ?? ''}`;
+  }).join('\n\n');
 }
 
 export function buildCarlosSystemPrompt(ctx: DailyContext): string {
