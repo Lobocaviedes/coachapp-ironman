@@ -43,3 +43,4 @@ ironman/unify_repo.py
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.aider*
