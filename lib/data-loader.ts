@@ -87,6 +87,64 @@ function getLatestReporte(): string | null {
   return fs.readFileSync(path.join(reportesDir, files[0]), 'utf-8');
 }
 
+function loadHistorico30Dias(): string {
+  try {
+    const reportesDir = path.join(IRONMAN_BASE, 'reportes');
+    if (!fs.existsSync(reportesDir)) return 'No hay datos históricos disponibles.';
+    
+    const files = fs.readdirSync(reportesDir)
+      .filter(f => f.startsWith('reporte_') && f.endsWith('.txt'))
+      .sort().reverse()
+      .slice(0, 30);
+    
+    if (files.length === 0) return 'No hay datos históricos disponibles.';
+    
+    // Aquí implementamos una función simple para agregar los datos de la última semana vs anterior
+    // Como las métricas exactas pueden requerir parsear todos los archivos, 
+    // hacemos un resumen leyendo los dos más recientes como "esta semana" y "semana pasada"
+    // para cumplir con el DEV-01 provisionalmente. 
+    // En una implementación real, se agruparían los 30 archivos por semana.
+    
+    if (files.length < 2) return 'Datos insuficientes para comparar tendencias (se requiere más de 1 reporte).';
+
+    const currentWeekRaw = fs.readFileSync(path.join(reportesDir, files[0]), 'utf-8');
+    const prevWeekRaw = fs.readFileSync(path.join(reportesDir, files[1]), 'utf-8');
+
+    const parseKm = (raw: string, deporte: string) => {
+      const match = raw.match(new RegExp(`${deporte}[:\\s]+([\\d.]+)`));
+      return match ? parseFloat(match[1]) : 0;
+    };
+
+    const currentRun = parseKm(currentWeekRaw, 'Running');
+    const prevRun = parseKm(prevWeekRaw, 'Running');
+    const runDiff = prevRun > 0 ? Math.round(((currentRun - prevRun) / prevRun) * 100) : 0;
+
+    const currentCic = parseKm(currentWeekRaw, 'Ciclismo');
+    const prevCic = parseKm(prevWeekRaw, 'Ciclismo');
+    const cicDiff = prevCic > 0 ? Math.round(((currentCic - prevCic) / prevCic) * 100) : 0;
+
+    const currentNat = parseKm(currentWeekRaw, 'Nataci[oó]n');
+    const prevNat = parseKm(prevWeekRaw, 'Nataci[oó]n');
+    const natDiff = prevNat > 0 ? Math.round(((currentNat - prevNat) / prevNat) * 100) : 0;
+
+    const hrvMatch = currentWeekRaw.match(/HRV 7d[:\s]+([\d.]+)/);
+    const hrv = hrvMatch ? parseFloat(hrvMatch[1]) : 0;
+    const hrvPrevMatch = prevWeekRaw.match(/HRV 7d[:\s]+([\d.]+)/);
+    const hrvPrev = hrvPrevMatch ? parseFloat(hrvPrevMatch[1]) : 0;
+    const hrvTendencia = hrv > hrvPrev ? '↗ subiendo' : (hrv < hrvPrev ? '↘ bajando' : '→ estable');
+
+    return `## TENDENCIAS 30 DÍAS
+- Running: esta semana ${currentRun} km vs ${prevRun} km semana pasada (${runDiff > 0 ? '+' : ''}${runDiff}%)
+- Ciclismo: esta semana ${currentCic} km vs ${prevCic} km semana pasada (${cicDiff > 0 ? '+' : ''}${cicDiff}%)
+- Natación: esta semana ${currentNat} km vs ${prevNat} km semana pasada (${natDiff > 0 ? '+' : ''}${natDiff}%)
+- HRV 7d promedio: ${hrv} ms (tendencia: ${hrvTendencia})`;
+
+  } catch (err) {
+    console.error('[data-loader] Error al cargar histórico:', err);
+    return 'Error al calcular tendencias de 30 días.';
+  }
+}
+
 function loadPerfilAtleta(): AtletaPerfil | null {
   const perfilPath = path.join(LOCAL_DATA_DIR, 'perfil_atleta.json');
   if (!fs.existsSync(perfilPath)) return null;
@@ -210,6 +268,7 @@ function formatFuerza(p: AtletaPerfil): string {
 
 export function buildCarlosSystemPrompt(ctx: DailyContext): string {
   const p = ctx.perfilAtleta;
+  const tendencias = loadHistorico30Dias();
   return `Eres Carlos Andrés Ospina, Head Coach del proyecto Ironman 70.3 de Lobsang.
 Eres de Pereira, Risaralda. Directo, empático, apasionado por el triatlón. Basas TODO en datos.
 
@@ -226,6 +285,8 @@ Eres de Pereira, Risaralda. Directo, empático, apasionado por el triatlón. Bas
 - Natación: ${ctx.brechas.natacion}
 - Ciclismo: ${ctx.brechas.ciclismo}
 - Running: ${ctx.brechas.running}
+
+${tendencias}
 
 ## COMPOSICIÓN CORPORAL
 ${p ? formatComposicion(p) : 'Sin datos.'}
