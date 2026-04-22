@@ -266,6 +266,62 @@ function formatFuerza(p: AtletaPerfil): string {
   }).join('\n\n');
 }
 
+function formatHector(p: AtletaPerfil): string {
+  const nat = p.marcas_personales?.natacion;
+  if (!nat) return 'Sin datos de natación registrados.';
+  const swolf = nat.SWOLF_promedio_reciente ?? nat.SWOLF_promedio;
+  const cad = nat.cadencia_brazadas_promedio_spm ?? '~13';
+  const distMax = nat.distancia_continua_max_m ?? '?';
+  const nota = nat.nota ?? '';
+  return [
+    `SWOLF: ${swolf ? `~${swolf}` : 'pendiente — Simón calcula en notebook'}`,
+    `DPS (distancia por brazada): ${swolf ? 'calculable con datos de sesión' : 'pendiente'}`,
+    `Cadencia: ${cad} braz/min (objetivo Héctor: 14-16 braz/largo en piscina 25m)`,
+    `Distancia continua máx: ${distMax} m`,
+    nota ? `Nota de Héctor: ${nota}` : '',
+  ].filter(Boolean).join('\n');
+}
+
+function formatNairo(p: AtletaPerfil): string {
+  const cyc = p.marcas_personales?.ciclismo;
+  if (!cyc) return 'Sin datos de ciclismo registrados.';
+  const ftp = cyc.FTP_watts;
+  const velZ2 = cyc.velocidad_Z2_kmh;
+  const velMejor = cyc.velocidad_mejor_reciente_kmh;
+  const cad = cyc.cadencia_optima_rpm;
+  const nota = cyc.nota ?? '';
+  const ftpStr = ftp
+    ? `${ftp}W (z2 target: ${Math.round(ftp * 0.75)}-${Math.round(ftp * 0.88)}W)`
+    : 'sin dato — Apple Watch no mide watts, requiere potenciómetro';
+  return [
+    `FTP estimado: ${ftpStr}`,
+    `Velocidad Z2: ${velZ2 ? `${velZ2} km/h` : 'pendiente'}`,
+    `Mejor sesión reciente: ${velMejor ? `${velMejor} km/h` : 'pendiente'}`,
+    `Cadencia óptima: ${cad ? `${cad} rpm` : 'pendiente (objetivo Nairo: 85-95 rpm)'}`,
+    `TSS por sesión: calculado dinámicamente con NP estimado`,
+    nota ? `Nota de Nairo: ${nota}` : '',
+  ].filter(Boolean).join('\n');
+}
+
+function formatCatherine(p: AtletaPerfil): string {
+  const run = p.marcas_personales?.running;
+  if (!run) return 'Sin datos de running registrados.';
+  const paceZ2 = run.pace_Z2_min_km ?? '?';
+  const paceRango = run.pace_Z2_rango_min_km ?? '?';
+  const paceTh = run.pace_threshold_min_km ?? '?';
+  const cad = run.cadencia_optima_spm ?? '?';
+  const distCACO = run.distancia_CACO_max_km ?? '?';
+  const nota = run.nota ?? '';
+  return [
+    `Pace Z2 objetivo: ${paceZ2} min/km (rango: ${paceRango})`,
+    `Pace umbral (Z4): ${paceTh} min/km`,
+    `Cadencia óptima: ${cad} spm (objetivo Catherine: 170-180 spm)`,
+    `Distancia CACO máx: ${distCACO} km`,
+    `Semáforo CACO: Verde < umbral | Amarillo 0-5s sobre umbral | Rojo > 5s sobre umbral`,
+    nota ? `Nota de Catherine: ${nota}` : '',
+  ].filter(Boolean).join('\n');
+}
+
 export function buildCarlosSystemPrompt(ctx: DailyContext): string {
   const p = ctx.perfilAtleta;
   const tendencias = loadHistorico30Dias();
@@ -299,6 +355,17 @@ ${p ? formatMarcas(p) : 'Sin marcas registradas.'}
 
 ## FUERZA — ÚLTIMAS SESIONES (Snap Fitness)
 ${p ? formatFuerza(p) : 'Sin sesiones. Snap Fitness no sincroniza con Apple Health — ingreso manual requerido.'}
+
+## ANÁLISIS POR ESPECIALISTA
+
+### 🏊 HÉCTOR (Natación)
+${p ? formatHector(p) : 'Sin datos.'}
+
+### 🚴 NAIRO (Ciclismo)
+${p ? formatNairo(p) : 'Sin datos.'}
+
+### 🏃 CATHERINE (Running)
+${p ? formatCatherine(p) : 'Sin datos.'}
 
 ## REPORTE COMPLETO DEL NOTEBOOK (Simón)
 ${ctx.reporteCompleto}
